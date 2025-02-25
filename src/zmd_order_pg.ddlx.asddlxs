@@ -1,0 +1,123 @@
+@Metadata.layer: #CORE
+@Search.searchable: true
+@UI: {
+    headerInfo: {
+        typeName: 'Order Detail',
+        typeNamePlural: 'Orders',
+        title: {
+            type: #STANDARD,
+            label: 'header',
+            value: 'OrderId'
+        },
+        description.value: 'OrderStatus'
+    }
+}
+annotate view zc_order_pg with
+{
+
+
+  @UI.facet: [
+          {
+              id: 'GeneralInfo',
+              type: #IDENTIFICATION_REFERENCE,
+              label: 'General Information',
+              position: 10
+          },
+          {
+              id: 'Products',
+              type: #LINEITEM_REFERENCE,
+              label: 'Products',
+              targetElement: '_products',
+              position: 20
+          }]
+
+  @UI: {
+              identification: [{ position: 10, importance: #HIGH },
+               {  type: #FOR_ACTION, dataAction: 'Set_Status_Submitted', label: 'Submit' },
+              {  type: #FOR_ACTION, dataAction: 'Set_Status_Approved', label: 'Approved'  },
+              {  type: #FOR_ACTION, dataAction: 'Set_Status_Reject', label: 'Reject'  } ],
+              lineItem: [{ position: 10, importance: #HIGH  },
+              {  type: #FOR_ACTION, dataAction: 'Set_Status_Submitted', label: 'Submit' },
+              {  type: #FOR_ACTION, dataAction: 'Set_Status_Approved', label: 'Approved'  },
+              {  type: #FOR_ACTION, dataAction: 'Set_Status_Reject', label: 'Reject'  } ]  ,
+
+              selectionField: [{ position: 10 } ]
+          }
+  @EndUserText.label: 'Employee ID'
+  @Search.defaultSearchElement : true
+  @Search.fuzzinessThreshold : 0.38
+
+  EmployeeId;
+
+  @UI: {
+              identification: [{ position: 11, importance: #HIGH }],
+              lineItem: [{ position: 11, importance: #HIGH , label: 'Order ID'}],
+              selectionField: [{ position: 11 }]
+          }
+  @Search.defaultSearchElement : true
+  @Search.fuzzinessThreshold : 0.38
+  OrderId;
+
+
+  @UI: {
+              identification: [{ position: 12, importance: #HIGH }],
+              lineItem: [{ position: 12, importance: #HIGH , label: 'Order Status' }],
+              selectionField: [{ position: 12 }]
+          }
+
+  //@Consumption.valueHelpDefinition: [{ entity:{name: 'zstatus_value_help_pg', element: 'Value' } } ]
+  @Search.defaultSearchElement : true
+  @Search.fuzzinessThreshold : 0.38
+  OrderStatus;
+
+  @UI: {
+              identification: [{ position: 13, importance: #HIGH }],
+              lineItem: [{ position: 13, importance: #HIGH ,label: 'CurrencyCode' }]
+  //              selectionField: [{ position: 12 }]
+          }
+  @Consumption.valueHelpDefinition: [{ entity : { name : 'I_CurrencyStdVH' , element : 'Currency'} }]
+  @Search.defaultSearchElement : true
+  @Search.fuzzinessThreshold : 0.38
+  CurrencyCode;
+  @UI: {
+              identification: [{ position: 14, importance: #HIGH }],
+              lineItem: [{ position: 14, importance: #HIGH ,label: 'Total Bill Amount' }]
+  //              selectionField: [{ position: 12 }]
+          }
+  billamt;
+  @UI: {
+              identification: [{ position: 15, importance: #HIGH }],
+              lineItem: [{ position: 15, importance: #HIGH ,label: 'Notes' }]
+  //              selectionField: [{ position: 12 }]
+          }
+
+  Notes;
+  @Search.defaultSearchElement : true
+  @Search.fuzzinessThreshold : 0.38
+  @UI: {
+              identification: [{ position: 16, importance: #HIGH }],
+              lineItem: [{ position: 16, importance: #HIGH  }]
+  //              selectionField: [{ position: 13 }]
+          }
+  @EndUserText.label: 'Order Creation Date'
+
+  OrderCreationDate;
+  @UI: {
+              identification: [{ position: 17, importance: #HIGH }],
+              lineItem: [{ position: 17, importance: #HIGH  }],
+                selectionField: [{ position: 13 }]
+          }
+  @EndUserText.label: 'Employee Name'
+  @Search.defaultSearchElement : true
+  @Search.fuzzinessThreshold : 0.38
+  EmployeeName;
+  @UI: {
+            identification: [{ position: 18, importance: #HIGH }],
+            lineItem: [{ position: 18, importance: #HIGH  }]
+  //              selectionField: [{ position: 13 }]
+        }
+  @EndUserText.label: 'Employee Role'
+  @Search.defaultSearchElement : true
+  @Search.fuzzinessThreshold : 0.38
+  EmployeeRole;
+}

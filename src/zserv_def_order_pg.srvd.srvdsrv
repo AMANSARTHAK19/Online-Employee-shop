@@ -1,0 +1,6 @@
+@EndUserText.label: 'order'
+define service Zserv_def_order_pg {
+  expose zc_order_pg;
+  expose zc_products_pg;
+  expose zc_delivery_pg;
+}

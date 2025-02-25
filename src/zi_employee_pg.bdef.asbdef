@@ -1,0 +1,20 @@
+managed implementation in class zbp_i_employee_pg unique;
+//strict ( 2 );
+
+define behavior for zi_employee_pg //alias <alias_name>
+persistent table zdt_employee_pg
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+//  field ( readonly ) EmployeeId;
+  mapping for zdt_employee_pg
+  {
+  EmployeeId = employee_id;
+  EmployeeName = employee_name;
+  EmployeeRole = employee_role;
+  }
+}

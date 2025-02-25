@@ -1,0 +1,5 @@
+CLASS zbp_i_product_data DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zi_product_data.
+ENDCLASS.
+
+CLASS zbp_i_product_data IMPLEMENTATION.
+ENDCLASS.

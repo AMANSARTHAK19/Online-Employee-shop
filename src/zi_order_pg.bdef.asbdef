@@ -1,0 +1,108 @@
+managed implementation in class zbp_i_order_pg unique;
+//strict ( 2 );
+
+define behavior for zi_order_pg //alias <alias_name>
+persistent table zdt_order_pg
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+  field ( readonly ) OrderStatus, EmployeeName, EmployeeRole, OrderCreationDate;
+  association _products { create; }
+  mapping for zdt_order_pg
+    {
+      EmployeeId        = employee_id;
+      OrderId           = order_id;
+      OrderStatus       = order_status;
+      EmployeeName      = employee_name;
+      EmployeeRole      = employee_role;
+      currencyCode      = currency_code;
+      Notes             = notes;
+      OrderCreationDate = order_creation_date;
+      CreatedBy         = created_by;
+      CreatedAt         = created_at;
+      LastChangedBy     = last_changed_by;
+      LastChangedAt     = last_changed_at;
+    }
+
+  validation validate_employee_id on save { create; field EmployeeId; }
+  validation validateOrderId on save { create; field OrderId; }
+
+  determination Filling_employee_details on save { create; field EmployeeId; }
+
+  determination setInitialStatus on save { create; }
+  determination setInitailCreatedDate on save { create; }
+  action Set_Status_Submitted result [1] $self;
+  action Set_Status_Approved result [1] $self;
+  action Set_Status_Reject result [1] $self;
+}
+
+
+define behavior for zi_products_pg //alias <alias_name>
+implementation in class zbp_i_product_pg unique
+persistent table zdt_products_pg
+lock dependent by _order
+authorization dependent by _order
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly ) EmployeeId, OrderId,ProductDescription, ValuationPerUnit , CurrencyCode;
+  field( mandatory : create ) ProductId;
+  association _order;
+  association _delivery { create; }
+
+  mapping for zdt_products_pg
+    {
+      EmployeeId         = employee_id;
+      OrderId            = order_id;
+      ProductId          = product_id;
+      ProductDescription = product_description;
+      CurrencyCode       = currency_code;
+      ValuationPerUnit   = valuation_per_unit;
+      CreatedBy          = created_by;
+      CreatedAt          = created_at;
+      LastChangedBy      = last_changed_by;
+      LastChangedAt      = last_changed_at;
+    }
+  determination setProductDetails on modify { create; field OrderId; }
+  validation validProductId on save { update; create; field ProductDescription; }
+}
+
+define behavior for zi_delivery_pg //alias <alias_name>
+implementation in class zbp_i_delivery_pg unique
+persistent table zdt_delivery_pg
+lock dependent by _order
+authorization dependent by _order
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly ) EmployeeId, OrderId, ProductId, TotalProductPrice, CurrencyCode ,ExpectedDeliveryDate;
+  field( mandatory : create ) Address;
+  association _order;
+  association _products;
+  mapping for zdt_delivery_pg
+    {
+      EmployeeId           = employee_id;
+      OrderId              = order_id;
+      ProductId            = product_id;
+      QuantityUnit         = quantity_unit;
+      Quantity             = quantity;
+      ExpectedDeliveryDate = expected_delivery_date;
+      Address              = address;
+      CurrencyCode         = currency_code;
+      TotalProductPrice    = total_product_price;
+      CreatedBy            = created_by;
+      CreatedAt            = created_at;
+      LastChangedBy        = last_changed_by;
+      LastChangedAt        = last_changed_at;
+    }
+  determination expactedDeliveryDate on save { create; field ProductId; }
+  determination calculate_product_price on save { create; field Quantity; }
+  validation validProductId_in_delivery on save { update; create; field ProductId; }
+  validation validateQuantity on save { update; create; field Quantity; }
+}

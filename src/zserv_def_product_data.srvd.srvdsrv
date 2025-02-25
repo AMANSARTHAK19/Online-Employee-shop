@@ -1,0 +1,4 @@
+@EndUserText.label: 'product data'
+define service Zserv_def_product_data {
+  expose zc_product_data;
+}

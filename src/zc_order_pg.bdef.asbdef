@@ -1,0 +1,33 @@
+projection;
+//strict ( 2 ); //Uncomment this line in order to enable strict mode 2. The strict mode has two variants (strict(1), strict(2)) and is prerequisite to be future proof regarding syntax and to be able to release your BO.
+
+define behavior for zc_order_pg //alias <alias_name>
+{
+  use create;
+  use update;
+  use delete;
+
+  use action Set_Status_Submitted;
+  use action Set_Status_Approved;
+  use action Set_Status_Reject;
+
+  use association _products { create; }
+}
+
+define behavior for zc_products_pg //alias <alias_name>
+{
+  use update;
+  use delete;
+
+  use association _order;
+  use association _delivery { create; }
+}
+
+define behavior for zc_delivery_pg //alias <alias_name>
+{
+  use update;
+  use delete;
+
+  use association _order;
+  use association _products;
+}

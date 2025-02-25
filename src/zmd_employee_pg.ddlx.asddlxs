@@ -1,0 +1,47 @@
+@Metadata.layer: #CORE
+@UI: {
+    headerInfo: {
+        typeName: 'employee',
+        typeNamePlural: 'employee',
+        title: {
+            type: #STANDARD,
+            label: 'header',
+            value: 'EmployeeId'
+        },
+        description.value: 'EmployeeId'
+    }
+}
+ 
+annotate view zc_employee_pg with
+{
+ 
+@UI.facet: [
+          {
+              id: 'GeneralInfo',
+              type: #IDENTIFICATION_REFERENCE,
+              label: 'General Information',
+              position: 10
+          }
+]
+@UI: {
+              identification: [{ position: 10, importance: #HIGH }],
+              lineItem: [{ position: 10, importance: #HIGH  , label: 'EmployeeId' }],
+              selectionField: [{ position: 10 }]
+              }
+EmployeeId;
+@EndUserText.label: 'Employee Name'
+@UI: {
+              identification: [{ position: 11, importance: #HIGH }],
+              lineItem: [{ position: 11, importance: #HIGH  , label: 'EmployeeName' }],
+              selectionField: [{ position: 11 }]
+              }
+ 
+EmployeeName;
+@UI: {
+              identification: [{ position: 12, importance: #HIGH }],
+              lineItem: [{ position: 12, importance: #HIGH  , label: 'EmployeeRole' }],
+              selectionField: [{ position: 12 }]
+              }
+@EndUserText.label: 'Employee Role'
+EmployeeRole;
+}

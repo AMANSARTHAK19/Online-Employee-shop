@@ -1,0 +1,25 @@
+managed implementation in class zbp_i_product_data unique;
+//strict ( 2 );
+
+define behavior for zi_product_data //alias <alias_name>
+persistent table zdt_product_data
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+  //  field ( readonly ) ProductId;
+  mapping for zdt_product_data
+    {
+      ProductId          = product_id;
+      ProductDescription = product_description;
+      CurrencyCode       = currency_code;
+      ValuationPerUnit   = valuation_per_unit;
+      CreatedBy          = created_by;
+      CreatedAt          = created_at;
+      LastChangedBy      = last_changed_by;
+      LastChangedAt      = last_changed_at;
+    }
+}

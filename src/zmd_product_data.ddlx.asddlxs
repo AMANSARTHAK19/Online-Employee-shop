@@ -1,0 +1,52 @@
+@Metadata.layer: #CORE
+@UI: {
+    headerInfo: {
+        typeName: 'Product',
+        typeNamePlural: 'Products',
+        title: {
+            type: #STANDARD,
+            label: 'Product Data',
+            value: 'ProductId'
+        },
+        description.value: 'ProductId'
+    }
+}
+annotate view zc_product_data with
+{
+@UI.facet: [
+          {
+              id: 'Product',
+              type: #IDENTIFICATION_REFERENCE,
+              label: 'General Information',
+              position: 10
+          }
+]
+@UI: {
+              identification: [{ position: 10, importance: #HIGH }],
+              lineItem: [{ position: 10, importance: #HIGH  , label: 'Product Id' }],
+              selectionField: [{ position: 10 }]
+              }
+ProductId;
+@UI: {
+              identification: [{ position: 11, importance: #HIGH }],
+              lineItem: [{ position: 11, importance: #HIGH  , label: 'Product Description' }],
+              selectionField: [{ position: 11 }]
+              }
+ProductDescription;
+@UI: {
+              identification: [{ position: 12, importance: #HIGH }],
+              lineItem: [{ position: 12, importance: #HIGH  , label: 'Currency Code' }],
+              selectionField: [{ position: 12 }]
+              }
+CurrencyCode;
+@UI: {
+              identification: [{ position: 13, importance: #HIGH }],
+              lineItem: [{ position: 13, importance: #HIGH  , label: 'Valuation Per Unit' }],
+              selectionField: [{ position: 13 }]
+              }
+ValuationPerUnit;
+//CreatedBy;
+//CreatedAt;
+//LastChangedBy;
+//LastChangedAt;
+}

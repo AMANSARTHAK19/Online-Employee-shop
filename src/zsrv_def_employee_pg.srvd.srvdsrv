@@ -1,0 +1,4 @@
+@EndUserText.label: 'employee'
+define service Zsrv_def_employee_pg {
+  expose zc_employee_pg;
+}
