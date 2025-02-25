@@ -2,8 +2,8 @@
 @Search.searchable: true
 @UI: {
     headerInfo: {
-        typeName: 'Deliveryu',
-        typeNamePlural: 'Deliveriesu',
+        typeName: 'Delivery',
+        typeNamePlural: 'Deliveries',
         title: {
             type: #STANDARD,
             label: 'Delivery',
@@ -15,16 +15,8 @@
 annotate view zc_delivery_pg with
 {
   @UI.facet: [
-  {
-                  id: 'order',
-                  purpose: #STANDARD,
-                  type: #IDENTIFICATION_REFERENCE,
-                  label: 'order info',
-                  position: 10,
-                  targetElement: '_order'
-              },
                 {
-                  id: 'Productss',
+                  id: 'Products',
                   purpose: #STANDARD,
                   type: #IDENTIFICATION_REFERENCE,
                   label: 'Product Information',
@@ -35,7 +27,7 @@ annotate view zc_delivery_pg with
                   id: 'Delivery',
                   purpose: #STANDARD,
                   type: #IDENTIFICATION_REFERENCE,
-                  label: 'Delivery & Quantity Info',
+                  label: 'Delivery & Quantity Information',
                   position: 30
               }
               ]

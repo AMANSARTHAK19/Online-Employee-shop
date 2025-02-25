@@ -10,6 +10,9 @@ define root view entity zc_order_pg as projection on zi_order_pg
     EmployeeName,
     OrderStatus,
     CurrencyCode,
+    @EndUserText.label: 'Total Bill'
+    @Semantics.amount.currencyCode : 'CurrencyCode'
+   _tblfn.total_bill as billamt,
     Notes,
     OrderCreationDate,
     CreatedBy,
@@ -17,5 +20,6 @@ define root view entity zc_order_pg as projection on zi_order_pg
     LastChangedBy,
     LastChangedAt,
     
-    _products : redirected to composition child zc_products_pg
+    _products : redirected to composition child zc_products_pg,
+    _tblfn
 }

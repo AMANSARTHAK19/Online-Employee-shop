@@ -20,7 +20,7 @@ annotate view zc_order_pg with
           {
               id: 'GeneralInfo',
               type: #IDENTIFICATION_REFERENCE,
-              label: 'General Information',
+              label: 'Order Information',
               position: 10
           },
           {
@@ -46,7 +46,7 @@ annotate view zc_order_pg with
   @EndUserText.label: 'Employee ID'
   @Search.defaultSearchElement : true
   @Search.fuzzinessThreshold : 0.38
-
+ @Consumption.valueHelpDefinition: [{ entity:{name: 'zi_employee_pg', element: 'EmployeeId' } } ]
   EmployeeId;
 
   @UI: {
@@ -79,11 +79,14 @@ annotate view zc_order_pg with
   @Search.defaultSearchElement : true
   @Search.fuzzinessThreshold : 0.38
   CurrencyCode;
-  @UI: {
-              identification: [{ position: 14, importance: #HIGH }],
-              lineItem: [{ position: 14, importance: #HIGH ,label: 'Total Bill Amount' }]
-  //              selectionField: [{ position: 12 }]
-          }
+@UI: {
+    identification: [{ position: 14, importance: #HIGH }],
+    lineItem: [
+        { position: 14, importance: #HIGH }
+    ]
+//    selectionField: [{ position: 12 }]
+}
+
   billamt;
   @UI: {
               identification: [{ position: 15, importance: #HIGH }],

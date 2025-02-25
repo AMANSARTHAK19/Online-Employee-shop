@@ -27,6 +27,8 @@ CLASS lhc_zi_order_pg DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS validate_employee_id FOR VALIDATE ON SAVE
       IMPORTING keys FOR zi_order_pg~validate_employee_id.
+    METHODS validatecurrencycode FOR VALIDATE ON SAVE
+      IMPORTING keys FOR zi_order_pg~validatecurrencycode.
 
 ENDCLASS.
 
@@ -42,7 +44,7 @@ CLASS lhc_zi_order_pg IMPLEMENTATION.
 
       " Check if the current user is the manager (CB9980009057)
       DATA(is_manager) = COND #(
-        WHEN sy-uname = 'CB9980009057' THEN abap_true
+        WHEN sy-uname = 'CB9980003204' THEN abap_true
         ELSE abap_false
       ).
 
@@ -294,21 +296,24 @@ CLASS lhc_zi_order_pg IMPLEMENTATION.
         RESULT DATA(orders).
 
     LOOP AT orders ASSIGNING FIELD-SYMBOL(<order>).
-*      DATA(order_id) = <order>-OrderId.
+      DATA(order_id) = <order>-OrderId.
+
+      SELECT SINGLE * FROM zdt_order_pg WHERE order_id = @order_id INTO @DATA(validOrderid).
+      IF sy-subrc IS INITIAL.
+        reported-zi_order_pg = VALUE #( BASE reported-zi_order_pg
+                ( %msg = new_message_with_text(
+                    severity = if_abap_behv_message=>severity-error
+                    text     = 'Order Id Already used by other Employee' )
+                )
+            ).
+        RETURN.
+      ENDIF.
 
       IF <order>-OrderId CP 'ORD*'.
         DATA(order_numeric_part) = substring( val = <order>-OrderId off = 3 ).
 
         IF order_numeric_part CO '0123456789' AND strlen( order_numeric_part ) > 0.
           is_order_id_valid = abap_true.
-        ELSE.
-          reported-zi_order_pg = VALUE #( BASE reported-zi_order_pg
-              ( %msg = new_message_with_text(
-                  severity = if_abap_behv_message=>severity-error
-                  text     = 'Please enter some numbers after ORD' )
-              )
-          ).
-          RETURN.
         ENDIF.
       ELSE.
         reported-zi_order_pg = VALUE #( BASE reported-zi_order_pg
@@ -350,6 +355,37 @@ CLASS lhc_zi_order_pg IMPLEMENTATION.
                       )   ) TO reported-zi_order_pg.
       RETURN.
     ENDIF.
+  ENDMETHOD.
+
+  METHOD validateCurrencyCode.
+    READ ENTITIES OF zi_order_pg IN LOCAL MODE
+              ENTITY zi_order_pg
+              FIELDS ( CurrencyCode ) WITH CORRESPONDING #( keys )
+              RESULT DATA(orderCurrency).
+    LOOP AT orderCurrency ASSIGNING FIELD-SYMBOL(<order_curr>).
+      IF <order_curr>-CurrencyCode IS INITIAL.
+        DATA(lv_text2) = 'Please Enter the currency Key'.
+        APPEND VALUE #( %key = keys[ 1 ]-%key
+                        %msg = new_message_with_text(
+                        text = lv_text2
+                        severity = if_abap_behv_message=>severity-error
+                        )   ) TO reported-zi_order_pg.
+        RETURN.
+      ELSE.
+        SELECT SINGLE * FROM I_CurrencyStdVH
+        WHERE Currency = @<order_curr>-CurrencyCode INTO @DATA(valid_curr_key).
+        IF sy-subrc IS NOT INITIAL.
+          DATA(lv_text3) = 'Please Enter Valid Currency Key'.
+          APPEND VALUE #( %key = keys[ 1 ]-%key
+                          %msg = new_message_with_text(
+                          text = lv_text3
+                          severity = if_abap_behv_message=>severity-error
+                          )   ) TO reported-zi_order_pg.
+          RETURN.
+        ENDIF.
+      ENDIF.
+    ENDLOOP.
+
   ENDMETHOD.
 
 ENDCLASS.

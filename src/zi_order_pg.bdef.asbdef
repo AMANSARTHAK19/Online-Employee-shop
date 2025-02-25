@@ -10,7 +10,8 @@ authorization master ( instance )
   create;
   update;
   delete;
-  field ( readonly ) OrderStatus, EmployeeName, EmployeeRole, OrderCreationDate;
+field ( mandatory : create, readonly : update ) EmployeeId, OrderId;
+field ( readonly ) OrderStatus, OrderCreationDate, EmployeeName, EmployeeRole;
   association _products { create; }
   mapping for zdt_order_pg
     {
@@ -30,6 +31,7 @@ authorization master ( instance )
 
   validation validate_employee_id on save { create; field EmployeeId; }
   validation validateOrderId on save { create; field OrderId; }
+  validation validateCurrencyCode on save { create; field CurrencyCode; }
 
   determination Filling_employee_details on save { create; field EmployeeId; }
 
@@ -51,7 +53,7 @@ authorization dependent by _order
   update;
   delete;
   field ( readonly ) EmployeeId, OrderId,ProductDescription, ValuationPerUnit , CurrencyCode;
-  field( mandatory : create ) ProductId;
+  field ( readonly : update, mandatory : create ) ProductId;
   association _order;
   association _delivery { create; }
 

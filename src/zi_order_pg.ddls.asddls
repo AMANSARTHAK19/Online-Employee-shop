@@ -9,6 +9,8 @@
 }
 define root view entity zi_order_pg as select from zdt_order_pg
 composition[0..*] of zi_products_pg as _products
+association  to ztable_funtion_pg as _tblfn
+    on $projection.OrderId= _tblfn.order_id
 {
     key employee_id as EmployeeId,
     key order_id as OrderId,
@@ -23,5 +25,6 @@ composition[0..*] of zi_products_pg as _products
     last_changed_by as LastChangedBy,
     last_changed_at as LastChangedAt,
     
-    _products
+    _products,
+    _tblfn
 }

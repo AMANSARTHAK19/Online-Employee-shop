@@ -15,12 +15,20 @@
 annotate view zc_products_pg with
 {
   @UI.facet: [
+    {
+                  id: 'order',
+                  purpose: #STANDARD,
+                  type: #IDENTIFICATION_REFERENCE,
+                  label: 'Order Infomation',
+                  position: 10,
+                  targetElement: '_order'
+              },
               {
                   id: 'Product',
                   purpose: #STANDARD,
                   type: #IDENTIFICATION_REFERENCE,
                   label: 'Product',
-                  position: 10
+                  position: 20
               },
               
             {
@@ -29,7 +37,7 @@ annotate view zc_products_pg with
                   type: #LINEITEM_REFERENCE,
                   label: 'Delivery',
                   targetElement: '_delivery',
-                  position: 20
+                  position: 30
               }
               ]
  
