@@ -10,6 +10,7 @@ define behavior for zc_order_pg //alias <alias_name>
   use action Set_Status_Submitted;
   use action Set_Status_Approved;
   use action Set_Status_Reject;
+  use action ScanHead;
 
   use association _products { create; }
 }
@@ -21,6 +22,7 @@ define behavior for zc_products_pg //alias <alias_name>
 
   use association _order;
   use association _delivery { create; }
+  use action ScanProd;
 }
 
 define behavior for zc_delivery_pg //alias <alias_name>

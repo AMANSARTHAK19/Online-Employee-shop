@@ -45,8 +45,8 @@ annotate view zc_order_pg with
           }
   @EndUserText.label: 'Employee ID'
   @Search.defaultSearchElement : true
-  @Search.fuzzinessThreshold : 0.38
- @Consumption.valueHelpDefinition: [{ entity:{name: 'zi_employee_pg', element: 'EmployeeId' } } ]
+  @Search.fuzzinessThreshold : 0.7
+  @Consumption.valueHelpDefinition: [{ entity:{name: 'zi_employee_pg', element: 'EmployeeId' } } ]
   EmployeeId;
 
   @UI: {
@@ -55,7 +55,7 @@ annotate view zc_order_pg with
               selectionField: [{ position: 11 }]
           }
   @Search.defaultSearchElement : true
-  @Search.fuzzinessThreshold : 0.38
+  @Search.fuzzinessThreshold : 0.8
   OrderId;
 
 
@@ -67,7 +67,7 @@ annotate view zc_order_pg with
 
   //@Consumption.valueHelpDefinition: [{ entity:{name: 'zstatus_value_help_pg', element: 'Value' } } ]
   @Search.defaultSearchElement : true
-  @Search.fuzzinessThreshold : 0.38
+  @Search.fuzzinessThreshold : 0.8
   OrderStatus;
 
   @UI: {
@@ -77,15 +77,15 @@ annotate view zc_order_pg with
           }
   @Consumption.valueHelpDefinition: [{ entity : { name : 'I_CurrencyStdVH' , element : 'Currency'} }]
   @Search.defaultSearchElement : true
-  @Search.fuzzinessThreshold : 0.38
+  @Search.fuzzinessThreshold : 0.8
   CurrencyCode;
-@UI: {
-    identification: [{ position: 14, importance: #HIGH }],
-    lineItem: [
-        { position: 14, importance: #HIGH }
-    ]
-//    selectionField: [{ position: 12 }]
-}
+  @UI: {
+      identification: [{ position: 14, importance: #HIGH }],
+      lineItem: [
+          { position: 14, importance: #HIGH }
+      ]
+  //    selectionField: [{ position: 12 }]
+  }
 
   billamt;
   @UI: {
@@ -96,7 +96,7 @@ annotate view zc_order_pg with
 
   Notes;
   @Search.defaultSearchElement : true
-  @Search.fuzzinessThreshold : 0.38
+  @Search.fuzzinessThreshold : 0.8
   @UI: {
               identification: [{ position: 16, importance: #HIGH }],
               lineItem: [{ position: 16, importance: #HIGH  }]
@@ -112,7 +112,7 @@ annotate view zc_order_pg with
           }
   @EndUserText.label: 'Employee Name'
   @Search.defaultSearchElement : true
-  @Search.fuzzinessThreshold : 0.38
+  @Search.fuzzinessThreshold : 0.8
   EmployeeName;
   @UI: {
             identification: [{ position: 18, importance: #HIGH }],
@@ -121,6 +121,6 @@ annotate view zc_order_pg with
         }
   @EndUserText.label: 'Employee Role'
   @Search.defaultSearchElement : true
-  @Search.fuzzinessThreshold : 0.38
+  @Search.fuzzinessThreshold : 0.8
   EmployeeRole;
 }

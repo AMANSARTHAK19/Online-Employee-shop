@@ -29,6 +29,8 @@ CLASS lhc_zi_order_pg DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR zi_order_pg~validate_employee_id.
     METHODS validatecurrencycode FOR VALIDATE ON SAVE
       IMPORTING keys FOR zi_order_pg~validatecurrencycode.
+    METHODS scanhead FOR MODIFY
+      IMPORTING keys FOR ACTION zi_order_pg~scanhead RESULT result.
 
 ENDCLASS.
 
@@ -44,7 +46,7 @@ CLASS lhc_zi_order_pg IMPLEMENTATION.
 
       " Check if the current user is the manager (CB9980009057)
       DATA(is_manager) = COND #(
-        WHEN sy-uname = 'CB9980003204' THEN abap_true
+        WHEN sy-uname = 'CB9980000390' THEN abap_true
         ELSE abap_false
       ).
 
@@ -74,7 +76,9 @@ CLASS lhc_zi_order_pg IMPLEMENTATION.
              order-order_status = 'APPROVED' OR
              order-order_status = 'REJECT'
              THEN if_abap_behv=>auth-unauthorized " Disable Submit for these statuses
-        ELSE if_abap_behv=>auth-allowed
+       WHEN order-order_status = 'IN PROGRESS'
+       THEN if_abap_behv=>auth-allowed
+       ELSE if_abap_behv=>auth-unauthorized
       ).
 
       " Append the result with the authorization status for each action
@@ -89,125 +93,175 @@ CLASS lhc_zi_order_pg IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD Set_Status_Approved.
-    READ ENTITIES OF zi_order_pg IN LOCAL MODE
-    ENTITY zi_order_pg ALL FIELDS WITH CORRESPONDING #( Keys )
-    RESULT DATA(lt_order)
-    FAILED DATA(lt_failed).
+*    READ ENTITIES OF zi_order_pg IN LOCAL MODE
+*    ENTITY zi_order_pg ALL FIELDS WITH CORRESPONDING #( Keys )
+*    RESULT DATA(lt_order)
+*    FAILED DATA(lt_failed).
+*
+*    LOOP AT lt_order ASSIGNING FIELD-SYMBOL(<fs_order>).
+*      SELECT SINGLE order_status
+*      FROM zdt_order_pg
+*      WHERE employee_id = @<fs_order>-EmployeeId AND order_id = @<fs_order>-OrderId
+*      INTO @DATA(lv_status).
+*
+**      IF lv_status = 'IN PROGRESS'.
+*
+*      <fs_order>-OrderStatus = 'APPROVED'.
+*
+*      MODIFY ENTITIES OF zi_order_pg IN LOCAL MODE
+*      ENTITY zi_order_pg
+*          UPDATE FIELDS ( orderStatus )
+*          WITH VALUE #( FOR ls_result IN lt_order INDEX INTO i (
+*                       %key-EmployeeId = <fs_order>-%key-EmployeeId
+*                       %key-orderId     = <fs_order>-%key-orderId
+*                           orderStatus = <fs_order>-orderStatus
+*                       %control  = VALUE #(
+*                                             orderStatus = if_abap_behv=>mk-on
+*                                           )
+*                       ) )
+*      FAILED   lt_failed
+*      REPORTED DATA(lt_reported)
+*      MAPPED   DATA(lt_mapped).
+*
 
-    LOOP AT lt_order ASSIGNING FIELD-SYMBOL(<fs_order>).
-      SELECT SINGLE order_status
-      FROM zdt_order_pg
-      WHERE employee_id = @<fs_order>-EmployeeId AND order_id = @<fs_order>-OrderId
-      INTO @DATA(lv_status).
+*
+**      ENDIF.
+*    ENDLOOP.
 
-*      IF lv_status = 'IN PROGRESS'.
 
-      <fs_order>-OrderStatus = 'APPROVED'.
 
-      MODIFY ENTITIES OF zi_order_pg IN LOCAL MODE
+MODIFY ENTITIES OF zi_order_pg IN LOCAL MODE
       ENTITY zi_order_pg
-          UPDATE FIELDS ( orderStatus )
-          WITH VALUE #( FOR ls_result IN lt_order INDEX INTO i (
-                       %key-EmployeeId = <fs_order>-%key-EmployeeId
-                       %key-orderId     = <fs_order>-%key-orderId
-                           orderStatus = <fs_order>-orderStatus
-                       %control  = VALUE #(
-                                             orderStatus = if_abap_behv=>mk-on
-                                           )
-                       ) )
-      FAILED   lt_failed
-      REPORTED DATA(lt_reported)
-      MAPPED   DATA(lt_mapped).
+      UPDATE FIELDS ( OrderStatus ) WITH VALUE #( for key in keys ( %tky = key-%tky
+                                                OrderStatus = 'APPROVED'
+                                                ) )
+                                                FAILED failed
+                                                REPORTED reported.
 
-*displaying a success message
+READ ENTITIES OF zi_order_pg in LOCAL MODE
+ENTITY zi_order_pg
+ALL FIELDS WITH CORRESPONDING #( keys )
+RESULT DATA(Orders).
+result  = VALUE #( for order in orders ( %tky  =  order-%tky %param = order ) ).
+
+**displaying a success message
       INSERT VALUE #(
      %msg = new_message_with_text( severity = if_abap_behv_message=>severity-success text = 'Order is Approved Successfully' )
    ) INTO TABLE reported-zi_order_pg.
 
-*      ENDIF.
-    ENDLOOP.
   ENDMETHOD.
 
   METHOD Set_Status_Reject.
-    READ ENTITIES OF zi_order_pg IN LOCAL MODE
-         ENTITY zi_order_pg ALL FIELDS WITH CORRESPONDING #( Keys )
-         RESULT DATA(lt_order)
-         FAILED DATA(lt_failed).
+*    READ ENTITIES OF zi_order_pg IN LOCAL MODE
+*         ENTITY zi_order_pg ALL FIELDS WITH CORRESPONDING #( Keys )
+*         RESULT DATA(lt_order)
+*         FAILED DATA(lt_failed).
+*
+*    LOOP AT lt_order ASSIGNING FIELD-SYMBOL(<fs_order>).
+*      SELECT SINGLE order_status
+*      FROM zdt_order_pg
+*      WHERE employee_id = @<fs_order>-EmployeeId AND order_id = @<fs_order>-OrderId
+*      INTO @DATA(lv_status).
+*
+**      IF lv_status = 'IN PROGRESS'.
+*
+*      <fs_order>-OrderStatus = 'REJECT'.
+*
+*      MODIFY ENTITIES OF zi_order_pg IN LOCAL MODE
+*      ENTITY zi_order_pg
+*          UPDATE FIELDS ( orderStatus )
+*          WITH VALUE #( FOR ls_result IN lt_order INDEX INTO i (
+*                       %key-EmployeeId = <fs_order>-%key-EmployeeId
+*                       %key-orderId     = <fs_order>-%key-orderId
+*                           orderStatus = <fs_order>-orderStatus
+*                       %control  = VALUE #(
+*                                             orderStatus = if_abap_behv=>mk-on
+*                                           )
+*                       ) )
+*      FAILED   lt_failed
+*      REPORTED DATA(lt_reported)
+*      MAPPED   DATA(lt_mapped).
+*
 
-    LOOP AT lt_order ASSIGNING FIELD-SYMBOL(<fs_order>).
-      SELECT SINGLE order_status
-      FROM zdt_order_pg
-      WHERE employee_id = @<fs_order>-EmployeeId AND order_id = @<fs_order>-OrderId
-      INTO @DATA(lv_status).
+*
+**      ENDIF.
+*    ENDLOOP.
 
-*      IF lv_status = 'IN PROGRESS'.
 
-      <fs_order>-OrderStatus = 'REJECT'.
-
-      MODIFY ENTITIES OF zi_order_pg IN LOCAL MODE
+MODIFY ENTITIES OF zi_order_pg IN LOCAL MODE
       ENTITY zi_order_pg
-          UPDATE FIELDS ( orderStatus )
-          WITH VALUE #( FOR ls_result IN lt_order INDEX INTO i (
-                       %key-EmployeeId = <fs_order>-%key-EmployeeId
-                       %key-orderId     = <fs_order>-%key-orderId
-                           orderStatus = <fs_order>-orderStatus
-                       %control  = VALUE #(
-                                             orderStatus = if_abap_behv=>mk-on
-                                           )
-                       ) )
-      FAILED   lt_failed
-      REPORTED DATA(lt_reported)
-      MAPPED   DATA(lt_mapped).
+      UPDATE FIELDS ( OrderStatus ) WITH VALUE #( for key in keys ( %tky = key-%tky
+                                                OrderStatus = 'REJECTED'
+                                                ) )
+                                                FAILED failed
+                                                REPORTED reported.
 
-*displaying a success message
+READ ENTITIES OF zi_order_pg in LOCAL MODE
+ENTITY zi_order_pg
+ALL FIELDS WITH CORRESPONDING #( keys )
+RESULT DATA(Orders).
+result  = VALUE #( for order in orders ( %tky  =  order-%tky %param = order ) ).
+
+**displaying a success message
       INSERT VALUE #(
      %msg = new_message_with_text( severity =
      if_abap_behv_message=>severity-success text = 'Order is Rejected Successfully' )
    ) INTO TABLE reported-zi_order_pg.
-
-*      ENDIF.
-    ENDLOOP.
   ENDMETHOD.
 
   METHOD Set_Status_Submitted.
-    READ ENTITIES OF zi_order_pg IN LOCAL MODE
-         ENTITY zi_order_pg ALL FIELDS WITH CORRESPONDING #( Keys )
-         RESULT DATA(lt_order)
-         FAILED DATA(lt_failed).
+*    READ ENTITIES OF zi_order_pg IN LOCAL MODE
+*         ENTITY zi_order_pg ALL FIELDS WITH CORRESPONDING #( Keys )
+*         RESULT DATA(lt_order)
+*         FAILED DATA(lt_failed).
+*
+*    LOOP AT lt_order ASSIGNING FIELD-SYMBOL(<fs_order>).
+*
+*      SELECT SINGLE order_status
+*      FROM zdt_order_pg
+*      WHERE employee_id = @<fs_order>-EmployeeId AND order_id = @<fs_order>-OrderId
+*      INTO @DATA(lv_status).
+*
+*      IF lv_status = 'IN PROGRESS'.
+*
+*        <fs_order>-OrderStatus = 'SUBMITTED'.
+*
+*        MODIFY ENTITIES OF zi_order_pg IN LOCAL MODE
+*        ENTITY zi_order_pg
+*            UPDATE FIELDS ( orderStatus )
+*            WITH VALUE #( FOR ls_result IN lt_order INDEX INTO i (
+*                         %key-EmployeeId = <fs_order>-%key-EmployeeId
+*                         %key-orderId     = <fs_order>-%key-orderId
+*                             orderStatus = <fs_order>-orderStatus
+*                         %control  = VALUE #(
+*                                               orderStatus = if_abap_behv=>mk-on
+*                                             )
+*                         ) )
+*        FAILED   lt_failed
+*        REPORTED DATA(lt_reported)
+*        MAPPED   DATA(lt_mapped).
 
-    LOOP AT lt_order ASSIGNING FIELD-SYMBOL(<fs_order>).
+MODIFY ENTITIES OF zi_order_pg IN LOCAL MODE
+      ENTITY zi_order_pg
+      UPDATE FIELDS ( OrderStatus ) WITH VALUE #( for key in keys ( %tky = key-%tky
+                                                OrderStatus = 'SUBMITTED'
+                                                ) )
+                                                FAILED failed
+                                                REPORTED reported.
 
-      SELECT SINGLE order_status
-      FROM zdt_order_pg
-      WHERE employee_id = @<fs_order>-EmployeeId AND order_id = @<fs_order>-OrderId
-      INTO @DATA(lv_status).
-
-      IF lv_status = 'IN PROGRESS'.
-
-        <fs_order>-OrderStatus = 'SUBMITTED'.
-
-        MODIFY ENTITIES OF zi_order_pg IN LOCAL MODE
-        ENTITY zi_order_pg
-            UPDATE FIELDS ( orderStatus )
-            WITH VALUE #( FOR ls_result IN lt_order INDEX INTO i (
-                         %key-EmployeeId = <fs_order>-%key-EmployeeId
-                         %key-orderId     = <fs_order>-%key-orderId
-                             orderStatus = <fs_order>-orderStatus
-                         %control  = VALUE #(
-                                               orderStatus = if_abap_behv=>mk-on
-                                             )
-                         ) )
-        FAILED   lt_failed
-        REPORTED DATA(lt_reported)
-        MAPPED   DATA(lt_mapped).
+READ ENTITIES OF zi_order_pg in LOCAL MODE
+ENTITY zi_order_pg
+ALL FIELDS WITH CORRESPONDING #( keys )
+RESULT DATA(Orders).
+result  = VALUE #( for order in orders ( %tky  =  order-%tky %param = order ) ).
 
 *displaying a success message
         INSERT VALUE #(
        %msg = new_message_with_text( severity = if_abap_behv_message=>severity-success text = 'Order is Submitted Successfully' )
      ) INTO TABLE reported-zi_order_pg.
-
-      ENDIF.
-    ENDLOOP.
+*
+*      ENDIF.
+*    ENDLOOP.
 
   ENDMETHOD.
 
@@ -288,6 +342,7 @@ CLASS lhc_zi_order_pg IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD validateOrderId.
+
     DATA(is_order_id_valid) = abap_false.
 
     READ ENTITIES OF zi_order_pg IN LOCAL MODE
@@ -310,82 +365,104 @@ CLASS lhc_zi_order_pg IMPLEMENTATION.
       ENDIF.
 
       IF <order>-OrderId CP 'ORD*'.
+        " erased starting 3 characters
         DATA(order_numeric_part) = substring( val = <order>-OrderId off = 3 ).
 
         IF order_numeric_part CO '0123456789' AND strlen( order_numeric_part ) > 0.
           is_order_id_valid = abap_true.
         ENDIF.
-      ELSE.
-        reported-zi_order_pg = VALUE #( BASE reported-zi_order_pg
-            ( %msg = new_message_with_text(
-                severity = if_abap_behv_message=>severity-error
-                text     = 'OrderId must start with "ORD" & followed by number' )
-            )
-        ).
-        RETURN.
       ENDIF.
+
     ENDLOOP.
-  ENDMETHOD.
 
-  METHOD validate_employee_id.
-    READ ENTITIES OF zi_order_pg IN LOCAL MODE
-            ENTITY zi_order_pg
-            FIELDS ( EmployeeId ) WITH CORRESPONDING #( keys )
-            RESULT DATA(orders).
-    DATA(emp_id) = orders[ 1 ]-EmployeeId.
-
-    SELECT SINGLE employee_id FROM zdt_employee_pg
-    WHERE employee_id = @emp_id INTO @DATA(result).
-    IF sy-subrc IS NOT INITIAL.
-      DATA(lv_text1) = 'Employee is not Valid' .
-      APPEND VALUE #( %key = keys[ 1 ]-%key
-                      %msg = new_message_with_text(
-                      text = lv_text1
-                      severity = if_abap_behv_message=>severity-error
-                      )   ) TO reported-zi_order_pg.
+    " check
+    IF is_order_id_valid EQ abap_false.
+      reported-zi_order_pg = VALUE #( BASE reported-zi_order_pg
+         ( %msg = new_message_with_text(
+             severity = if_abap_behv_message=>severity-error
+             text     = 'OrderId must start with "ORD" & followed by number' )
+         )
+     ).
       RETURN.
-    ENDIF.
-    SHIFT emp_id LEFT DELETING LEADING '0'.
-    IF strlen( emp_id ) <> 5.
-      DATA(lv_text2) = 'Employee ID should be 5 digits'.
-      APPEND VALUE #( %key = keys[ 1 ]-%key
-                      %msg = new_message_with_text(
-                      text = lv_text2
-                      severity = if_abap_behv_message=>severity-error
-                      )   ) TO reported-zi_order_pg.
-      RETURN.
-    ENDIF.
-  ENDMETHOD.
+    endif.
 
-  METHOD validateCurrencyCode.
-    READ ENTITIES OF zi_order_pg IN LOCAL MODE
+
+    ENDMETHOD.
+
+    METHOD validate_employee_id.
+      READ ENTITIES OF zi_order_pg IN LOCAL MODE
               ENTITY zi_order_pg
-              FIELDS ( CurrencyCode ) WITH CORRESPONDING #( keys )
-              RESULT DATA(orderCurrency).
-    LOOP AT orderCurrency ASSIGNING FIELD-SYMBOL(<order_curr>).
-      IF <order_curr>-CurrencyCode IS INITIAL.
-        DATA(lv_text2) = 'Please Enter the currency Key'.
-        APPEND VALUE #( %key = keys[ 1 ]-%key
-                        %msg = new_message_with_text(
-                        text = lv_text2
-                        severity = if_abap_behv_message=>severity-error
-                        )   ) TO reported-zi_order_pg.
-        RETURN.
-      ELSE.
-        SELECT SINGLE * FROM I_CurrencyStdVH
-        WHERE Currency = @<order_curr>-CurrencyCode INTO @DATA(valid_curr_key).
+              FIELDS ( EmployeeId ) WITH CORRESPONDING #( keys )
+              RESULT DATA(orders).
+      DATA(emp_id) = orders[ 1 ]-EmployeeId.
+
+      SELECT SINGLE employee_id FROM zdt_employee_pg
+      WHERE employee_id = @emp_id INTO @DATA(result).
         IF sy-subrc IS NOT INITIAL.
-          DATA(lv_text3) = 'Please Enter Valid Currency Key'.
+          DATA(lv_text1) = 'Employee is not Valid' .
           APPEND VALUE #( %key = keys[ 1 ]-%key
                           %msg = new_message_with_text(
-                          text = lv_text3
+                          text = lv_text1
                           severity = if_abap_behv_message=>severity-error
                           )   ) TO reported-zi_order_pg.
           RETURN.
         ENDIF.
-      ENDIF.
-    ENDLOOP.
+        SHIFT emp_id LEFT DELETING LEADING '0'.
+        IF strlen( emp_id ) <> 5.
+          DATA(lv_text2) = 'Employee ID should be 5 digits'.
+          APPEND VALUE #( %key = keys[ 1 ]-%key
+                          %msg = new_message_with_text(
+                          text = lv_text2
+                          severity = if_abap_behv_message=>severity-error
+                          )   ) TO reported-zi_order_pg.
+          RETURN.
+        ENDIF.
+      ENDMETHOD.
 
-  ENDMETHOD.
+      METHOD validateCurrencyCode.
+        READ ENTITIES OF zi_order_pg IN LOCAL MODE
+                  ENTITY zi_order_pg
+                  FIELDS ( CurrencyCode ) WITH CORRESPONDING #( keys )
+                  RESULT DATA(orderCurrency).
+        LOOP AT orderCurrency ASSIGNING FIELD-SYMBOL(<order_curr>).
+          IF <order_curr>-CurrencyCode IS INITIAL.
+            DATA(lv_text2) = 'Please Enter the currency Key'.
+            APPEND VALUE #( %key = keys[ 1 ]-%key
+                            %msg = new_message_with_text(
+                            text = lv_text2
+                            severity = if_abap_behv_message=>severity-error
+                            )   ) TO reported-zi_order_pg.
+            RETURN.
+          ELSE.
+            SELECT SINGLE * FROM I_CurrencyStdVH
+            WHERE Currency = @<order_curr>-CurrencyCode INTO @DATA(valid_curr_key).
+              IF sy-subrc IS NOT INITIAL.
+                DATA(lv_text3) = 'Please Enter Valid Currency Key'.
+                APPEND VALUE #( %key = keys[ 1 ]-%key
+                                %msg = new_message_with_text(
+                                text = lv_text3
+                                severity = if_abap_behv_message=>severity-error
+                                )   ) TO reported-zi_order_pg.
+                RETURN.
+              ENDIF.
+            ENDIF.
+          ENDLOOP.
+
+        ENDMETHOD.
+
+        METHOD ScanHead.
+
+          READ ENTITIES OF zi_order_pg IN LOCAL MODE
+          ENTITY zi_order_pg
+          ALL FIELDS WITH
+          CORRESPONDING #( keys )
+          RESULT DATA(orders).
+
+          result = VALUE #( FOR order IN orders
+                     ( %tky   = order-%tky
+                       %param = order ) ).
+
+
+        ENDMETHOD.
 
 ENDCLASS.

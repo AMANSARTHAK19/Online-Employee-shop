@@ -6,6 +6,10 @@ CLASS lhc_zi_products_pg DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS validProductId FOR VALIDATE ON SAVE
       IMPORTING keys FOR zi_products_pg~validProductId.
+    METHODS ScanProd FOR MODIFY
+      IMPORTING keys FOR ACTION zi_products_pg~ScanProd RESULT result.
+    METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
+      IMPORTING keys REQUEST requested_authorizations FOR zi_products_pg RESULT result.
 ENDCLASS.
 
 CLASS lhc_zi_products_pg IMPLEMENTATION.
@@ -56,19 +60,48 @@ CLASS lhc_zi_products_pg IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD validProductId.
+
     READ ENTITIES OF zi_order_pg IN LOCAL MODE
                   ENTITY zi_products_pg
                   FIELDS ( ProductId )
                   WITH CORRESPONDING #( keys )
                   RESULT DATA(OrderProduct).
+
     DATA(product_id) = OrderProduct[ 1 ]-ProductId.
-    IF product_id IS INITIAL.
+
+    SELECT SINGLE product_id FROM zdt_product_data
+    WHERE product_id = @product_id
+    INTO @DATA(result).
+
+    IF sy-subrc IS NOT INITIAL.
+
       INSERT VALUE #(
      %msg = new_message_with_text( severity = if_abap_behv_message=>severity-error
      text = 'Invalid Product ID' )
    ) INTO TABLE reported-zi_order_pg.
+
       RETURN.
+
     ENDIF.
+
+  ENDMETHOD.
+
+  METHOD ScanProd.
+
+    READ ENTITIES OF zi_order_pg IN LOCAL MODE
+    ENTITY zi_products_pg
+    ALL FIELDS WITH
+    CORRESPONDING #( keys )
+    RESULT DATA(prods).
+
+    result = VALUE #( FOR prod IN prods
+               ( %tky   = prod-%tky
+                 %param = prod ) ).
+
+
+  ENDMETHOD.
+
+  METHOD get_instance_authorizations.
   ENDMETHOD.
 
 ENDCLASS.

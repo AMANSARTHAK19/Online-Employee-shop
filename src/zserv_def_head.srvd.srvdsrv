@@ -1,0 +1,4 @@
+@EndUserText.label: 'head'
+define service Zserv_def_head {
+  expose ZI_head;
+}

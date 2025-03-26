@@ -17,4 +17,5 @@ authorization master ( instance )
   EmployeeName = employee_name;
   EmployeeRole = employee_role;
   }
+  validation checkemployeid on save { field EmployeeId; }
 }

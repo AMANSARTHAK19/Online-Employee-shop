@@ -44,6 +44,7 @@ annotate view zc_products_pg with
   @UI: {
   //            identification: [{ position: 10, importance: #HIGH }],
   //            lineItem: [{ position: 10, importance: #HIGH  , label: 'Employee ID' }],
+  
               selectionField: [{ position: 10 }]
               }
   EmployeeId;
@@ -51,7 +52,7 @@ annotate view zc_products_pg with
  
   @UI: {
   //            identification: [{ position: 11, importance: #HIGH }],
-  //            lineItem: [{ position: 11, importance: #HIGH  , label: 'Order ID' }],
+  //            lineItem: [{ position: 11, importance: #HIGH  , label: 'Order ID' }]],
               selectionField: [{ position: 11 }]
           }
   OrderId;

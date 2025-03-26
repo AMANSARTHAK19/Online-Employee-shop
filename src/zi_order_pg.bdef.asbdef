@@ -40,6 +40,7 @@ field ( readonly ) OrderStatus, OrderCreationDate, EmployeeName, EmployeeRole;
   action Set_Status_Submitted result [1] $self;
   action Set_Status_Approved result [1] $self;
   action Set_Status_Reject result [1] $self;
+  action ScanHead result [1] $self;
 }
 
 
@@ -72,6 +73,8 @@ authorization dependent by _order
     }
   determination setProductDetails on modify { create; field OrderId; }
   validation validProductId on save { update; create; field ProductDescription; }
+
+  action ScanProd result [1] $self;
 }
 
 define behavior for zi_delivery_pg //alias <alias_name>
